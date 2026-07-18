@@ -237,7 +237,24 @@ const escapeHtml = (value = "") =>
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
 
+const sanitizeUrl = (value = "") => {
+  const url = String(value || "").trim();
+  try {
+    return encodeURI(url);
+  } catch {
+    return url.replace(/\s/g, "%20");
+  }
+};
+
 const numberValue = (value) => Number(String(value || "0").replace(/[^0-9.-]/g, "")) || 0;
+
+const slugify = (value = "") =>
+  String(value)
+    .trim()
+    .toLowerCase()
+    .replace(/&/g, "and")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 
 const getGoogleDriveId = (url = "") => {
   const patterns = [/\/file\/d\/([^/]+)/, /[?&]id=([^&]+)/, /\/d\/([^/]+)/];
@@ -265,6 +282,7 @@ const getYoutubeId = (url = "") => {
 const getMedia = (item) => {
   const explicitUrl = (item.image || item.media || item.video || "").trim();
   const linkUrl = (item.link || "").trim();
+  console.log("linkUrl", linkUrl);
   const linkLooksLikeMedia =
     getYoutubeId(linkUrl) ||
     getGoogleDriveId(linkUrl) ||
@@ -290,6 +308,7 @@ const getMedia = (item) => {
 
   if (driveId) {
     const explicitVideo = /video|youtube/i.test(item.media_type || item.type || "");
+    console.log("driveId", driveId, "explicitVideo", explicitVideo);
     return {
       type: explicitVideo ? "drive-video" : "image",
       src: explicitVideo
@@ -310,16 +329,18 @@ const getMedia = (item) => {
 
 const renderMediaThumb = (item, className = "media-thumb") => {
   const media = getMedia(item);
+  console.log("renderMediaThumb", item, media);
   const title = escapeHtml(media.title);
 
   if (media.type === "none") return "";
 
   if (media.type === "image") {
-    return `<img class="${className}" src="${escapeHtml(media.src)}" alt="${escapeHtml(media.alt)}" loading="lazy" />`;
+    return `<img class="${className}" src="${media.src}" alt="${escapeHtml(media.alt)}" loading="lazy" />`;
   }
 
+  const thumbSrc = sanitizeUrl(media.thumb);
   const thumb = media.thumb
-    ? `<img class="${className}" src="${escapeHtml(media.thumb)}" alt="${escapeHtml(media.alt)}" loading="lazy" />`
+    ? `<img class="${className}" src="${escapeHtml(thumbSrc)}" alt="${escapeHtml(media.alt)}" loading="lazy" />`
     : `<div class="${className} media-placeholder" aria-hidden="true"></div>`;
 
   return `
@@ -334,7 +355,7 @@ const mediaDataset = (item) => {
   const media = getMedia(item);
   return `
     data-media-type="${escapeHtml(media.type)}"
-    data-media-src="${escapeHtml(media.src)}"
+    data-media-src="${escapeHtml(sanitizeUrl(media.src))}"
     data-media-title="${escapeHtml(media.title)}"
     data-media-alt="${escapeHtml(media.alt)}"
   `;
@@ -374,7 +395,7 @@ const parseCsv = (csvText) => {
     rows.push(row);
   }
 
-  const headers = (rows.shift() || []).map((header) => header.trim().toLowerCase());
+  const headers = (rows.shift() || []).map((header) => header.trim().toLowerCase().replace(/\s+/g, "_"));
   return rows
     .filter((item) => item.some((value) => value.trim()))
     .map((item) =>
@@ -387,7 +408,7 @@ const parseCsv = (csvText) => {
 
 const groupRows = (rows) =>
   rows.reduce((groups, row) => {
-    const section = (row.section || "").trim();
+    const section = (row.section || "").trim().toLowerCase().replace(/[\s-]+/g, "_");
     if (!section || row.active?.toLowerCase() === "no") return groups;
     groups[section] = groups[section] || [];
     groups[section].push(row);
@@ -418,7 +439,6 @@ const formatCounter = (value) => {
 const renderDashboard = (data) => {
   const summaryTarget = document.querySelector("[data-dashboard]");
   const progressTarget = document.querySelector("[data-progress]");
-  const teamTarget = document.querySelector("[data-team]");
   const summary = data.dashboard_summary || [];
   const programs = data.dashboard_programs || [];
 
@@ -453,44 +473,34 @@ const renderDashboard = (data) => {
       })
       .join("");
   }
+};
 
-  if (teamTarget) {
-    // const teamMembers = data.team || [];
-    teamTarget.innerHTML = team
-      .map(
-        (item) => `
-          <article class="person-card">
-            ${renderMediaThumb(item)}
-            <h3>${escapeHtml(item.title)}</h3>
-            <p>${escapeHtml(item.role)}</p>
-            <div>
-              <a href="${escapeHtml(item.linkedin || "#")}" aria-label="${escapeHtml(item.title)} LinkedIn">in</a>
-              <a href="${escapeHtml(item.instagram || "#")}" aria-label="${escapeHtml(item.title)} Instagram">ig</a>
-            </div>
-          </article>
-        `
-      )
-      .join("");
-  }
+const renderContact = (items = []) => {
+  items.forEach((item) => {
+    const field = (item.label || item.title || "").trim().toLowerCase().replace(/[\s-]+/g, "_");
+    const target = document.querySelector(`[data-contact-field="${field}"]`);
+    if (target && item.value) target.textContent = item.value;
+  });
 };
 
 const renderContent = (data) => {
   const renderers = {
     initiatives: (items) =>
       items
-        .map(
-          (item) => `
+        .map((item) => {
+          const programSlug = slugify(item.program || item.slug || item.title);
+          return `
             <article class="initiative-card reveal">
               ${renderMediaThumb(item)}
               <div>
                 <span class="icon">${escapeHtml(item.icon || "+")}</span>
                 <h3>${escapeHtml(item.title)}</h3>
                 <p>${escapeHtml(item.description)}</p>
-                <a href="${escapeHtml(item.link || "#impact")}">${escapeHtml(item.button || "Read more")}</a>
+                <a href="${escapeHtml(`program/index.html?program=${programSlug}`)}">${escapeHtml(item.button || "View program")}</a>
               </div>
             </article>
-          `
-        )
+          `;
+        })
         .join(""),
     impact_stats: (items) =>
       items
@@ -545,13 +555,11 @@ const renderContent = (data) => {
           (item) => `
             <article class="person-card reveal">
               ${renderMediaThumb(item)}
-              console.log(item)
               <h3>${escapeHtml(item.title)}</h3>
-              console.log(item.role)
               <p>${escapeHtml(item.role)}</p>
               <div>
-                <a href="${escapeHtml(item.linkedin || "#")}" aria-label="${escapeHtml(item.title)} LinkedIn">in</a>
-                <a href="${escapeHtml(item.instagram || "#")}" aria-label="${escapeHtml(item.title)} Instagram">ig</a>
+                <a href="${escapeHtml(item.linkedin || "https://www.linkedin.com/in/mohit-yadav-7a2266423")}" target="_blank" rel="noopener noreferrer" aria-label="${escapeHtml(item.title)} LinkedIn">in</a>
+                <a href="${escapeHtml(item.instagram || "https://www.instagram.com/single___step__foundation/?hl=en")}" target="_blank" rel="noopener noreferrer" aria-label="${escapeHtml(item.title)} Instagram">ig</a>
               </div>
             </article>
           `
@@ -789,9 +797,14 @@ const setupForms = () => {
 const init = async () => {
   const rows = await fetchSheetRows();
   const data = groupRows(rows);
+  const sectionCounts = Object.fromEntries(Object.entries(data).map(([section, items]) => [section, items.length]));
+
+  window.websiteData = data;
+  console.info("Website data loaded from Google Sheets", sectionCounts);
 
   renderDashboard(data);
   renderContent(data);
+  renderContact(data.contact || []);
   setupRevealAnimations();
   setupNavigation();
   setupDonationAmounts();

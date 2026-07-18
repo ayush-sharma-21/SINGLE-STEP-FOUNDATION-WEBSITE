@@ -1,28 +1,22 @@
-section,title,label,value,description,image,alt,icon,link,button,date,location,before,after,outcome,role,linkedin,instagram,rating,size,open,active
-dashboard_summary,,Donation Received,"₹2,35,000",,,,,,,,,,,,,,,,,,yes
-dashboard_summary,,Spent,"₹1,78,000",,,,,,,,,,,,,,,,,,yes
-dashboard_summary,,Remaining,"₹57,000",,,,,,,,,,,,,,,,,,yes
-dashboard_summary,,Families Supported,820,,,,,,,,,,,,,,,,,,yes
-dashboard_programs,,Meals Sponsored,78,,,,,,,,,,,,,,,,,,yes
-dashboard_programs,,Blankets Distributed,64,,,,,,,,,,,,,,,,,,yes
-dashboard_programs,,Children Helped,82,,,,,,,,,,,,,,,,,,yes
-dashboard_programs,,Women Helped,58,,,,,,,,,,,,,,,,,,yes
-dashboard_programs,,Emergency Relief,46,,,,,,,,,,,,,,,,,,yes
-impact_stats,Lives Impacted,,10000,,,,,,,,,,,,,,,,,,yes
-impact_stats,Blankets Distributed,,500,,,,,,,,,,,,,,,,,,yes
-impact_stats,Meals Served,,3000,,,,,,,,,,,,,,,,,,yes
-impact_stats,School Kits Distributed,,2500,,,,,,,,,,,,,,,,,,yes
-impact_stats,Birthday Celebrations,,120,,,,,,,,,,,,,,,,,,yes
-impact_stats,Women Hygiene Kits,,100,,,,,,,,,,,,,,,,,,yes
-initiatives,Blanket Distribution,,,"Helping families stay warm through winter with quality blankets and care kits.",https://images.unsplash.com/photo-1519689680058-324335c77eba?auto=format&fit=crop&w=800&q=80,Warm blankets folded for distribution,☀,#impact,Read more,,,,,,,,,,,,yes
-initiatives,Stationery Distribution,,,"Providing school supplies that help children continue learning with confidence.",https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=800&q=80,Children learning with notebooks,✎,#impact,Read more,,,,,,,,,,,,yes
-initiatives,Food Distribution,,,"Serving nutritious meals prepared with fresh ingredients, hygiene, and safe packaging.",https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=800&q=80,Volunteers packing food for distribution,◒,#impact,Read more,,,,,,,,,,,,yes
-activity_feed,,,,Distributed 150 freshly prepared meals in Sector 12.,,,,,Today,,,,,,,,,,,,yes
-activity_feed,,,,Celebrated birthdays of 15 children with cake gifts and decorations.,,,,,Yesterday,,,,,,,,,,,,yes
-gallery,Food Distribution,,,https://images.unsplash.com/photo-1599059813005-11265ba4b4ce?auto=format&fit=crop&w=700&q=80,Food distribution activity,,,,,,,,,,,,,,tall,,yes
-gallery,Blanket Drive,,,https://images.unsplash.com/photo-1542810634-71277d95dcbb?auto=format&fit=crop&w=700&q=80,Community support drive,,,,,,,,,,,,,,,,yes
-stories,,,,,,,,,,,,"A child came to class without supplies.","She received a complete school kit.","Outcome: regular attendance improved.",,,,,,,yes
-team,Founder Name,,,,https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=500&q=80,Founder portrait placeholder,,,,,,,,,Founder,#,#,,,,yes
-testimonials,Parent,,,"The foundation helped my child continue school with dignity.",,,,,,,,,,,,,,5,,,yes
-events,Blanket Drive,,,,,,,,Register,31 Jul,"Community center, Delhi",,,,,,,,,,yes
-faqs,How can I donate?,,,"Use the donation form UPI bank transfer or QR code payment placeholder.",,,,,,,,,,,,,,,,yes,yes
+section,program,title,label,value,description,image,alt,icon,link,button,date,location,before,after,outcome,role,linkedin,instagram,rating,size,open,active,media_type,thumbnail
+dashboard_summary,,,Donation Received,"₹2,35,000",,,,,,,,,,,,,,,,,,yes,,
+dashboard_summary,,,Spent,"₹1,78,000",,,,,,,,,,,,,,,,,,yes,,
+dashboard_summary,,,Remaining,"₹57,000",,,,,,,,,,,,,,,,,,yes,,
+dashboard_programs,,,Meals Sponsored,78,,,,,,,,,,,,,,,,,,yes,,
+dashboard_programs,,,Children Helped,82,,,,,,,,,,,,,,,,,,yes,,
+impact_stats,,Lives Impacted,,10000,,,,,,,,,,,,,,,,,,yes,,
+impact_stats,,Meals Served,,3000,,,,,,,,,,,,,,,,,,yes,,
+initiatives,,Blanket Distribution,,,"Helping families stay warm through winter with quality blankets and care kits.",https://images.unsplash.com/photo-1519689680058-324335c77eba?auto=format&fit=crop&w=800&q=80,Warm blankets folded for distribution,☀,#impact,View program,,,,,,,,,,,,yes,,
+initiatives,,Food Distribution,,,"Serving nutritious meals prepared with fresh ingredients hygiene and safe packaging.",https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=800&q=80,Volunteers packing food for distribution,◒,#impact,View program,,,,,,,,,,,,yes,,
+program_media,Blanket Distribution,Blanket Drive Photo,,,Winter support drive field photo.,blanket-distribution/photo-1.jpg,Blanket distribution photo,,,,,,,,,,,,,,,yes,,
+program_media,Blanket Distribution,Volunteer Video,,,Short field update from volunteers.,https://youtu.be/VIDEO_ID,Volunteer update video,,,,,,,,,,,,,wide,,yes,youtube,
+program_media,Blanket Distribution,Google Drive Video,,,Drive-hosted field video.,https://drive.google.com/file/d/FILE_ID/view,Google Drive public video,,,,,,,,,,,,,wide,,yes,video,
+activity_feed,,,,,Distributed 150 freshly prepared meals in Sector 12.,,,,,Today,,,,,,,,,,,,yes,,
+gallery,,Food Distribution,,,https://images.unsplash.com/photo-1599059813005-11265ba4b4ce?auto=format&fit=crop&w=700&q=80,Food distribution activity,,,,,,,,,,,,,,tall,,yes,,
+stories,,,,,,,,,,,,,A child came to class without supplies.,She received a complete school kit.,Outcome: regular attendance improved.,,,,,,,yes,,
+team,,Founder Name,,,,https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=500&q=80,Founder portrait placeholder,,,,,,,,,Founder,#,#,,,,yes,,
+testimonials,,Parent,,,"The foundation helped my child continue school with dignity.",,,,,,,,,,,,,,5,,,yes,,
+events,,Blanket Drive,,,,https://images.unsplash.com/photo-1542810634-71277d95dcbb?auto=format&fit=crop&w=700&q=80,Blanket drive event,,#volunteer,Register,31 Jul,"Community center, Delhi",,,,,,,,,,yes,,
+faqs,,How can I donate?,,,"Use the donation form UPI bank transfer or QR code payment placeholder.",,,,,,,,,,,,,,,,yes,yes,,
+contact,,,phone,+91 9953908097,,,,,,,,,,,,,,,,,,yes,,
+contact,,,email,mohit@singlestepfoundation.org,,,,,,,,,,,,,,,,,,yes,,
