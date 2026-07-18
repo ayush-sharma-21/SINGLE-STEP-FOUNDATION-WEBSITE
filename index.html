@@ -231,7 +231,7 @@
             <div class="payment-list">
               <span>UPI</span><span>QR Code</span><span>Bank Transfer</span><span>Debit Card</span><span>Credit Card</span><span>Net Banking</span><span>International Donations</span>
             </div>
-            <div class="qr-panel" aria-label="UPI QR code placeholder">
+            <div class="qr-panel" aria-label="UPI QR code placeholder" role="button" tabindex="0">
               <img class="qr-code" src="https://singlestep-foundation.org/assets/images/qr-code.png" 
                   alt="UPI QR Code" />
               <div>
@@ -263,6 +263,46 @@
             <label>Message<textarea placeholder="Add a note of support"></textarea></label>
             <button class="btn btn-primary btn-wide" type="submit">Donate Securely</button>
           </form>
+
+          <!-- Expanded QR overlay -->
+          <div id="qr-overlay" aria-hidden="true">
+            <div class="qr-expanded" role="dialog" aria-modal="true" aria-label="Expanded QR code">
+              <button id="qr-close" aria-label="Close QR">×</button>
+              <img id="qr-large" src="https://singlestep-foundation.org/assets/images/qr-code.png" alt="UPI QR Code large" />
+              <div class="qr-caption">
+                <strong>Scan to donate by UPI</strong>
+                <span>Close to return.</span>
+              </div>
+            </div>
+          </div>
+
+          <style>
+            /* Overlay styles for expanded QR */
+            #qr-overlay{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);z-index:9999}
+            #qr-overlay[aria-hidden="false"]{display:flex}
+            .qr-expanded{background:#fff;padding:20px;border-radius:8px;max-width:90vw;max-height:90vh;display:flex;flex-direction:column;align-items:center;gap:12px;position:relative}
+            .qr-expanded img{width:320px;height:320px;object-fit:contain;max-width:80vw;max-height:80vh}
+            #qr-close{position:absolute;top:8px;right:8px;background:transparent;border:0;font-size:28px;line-height:1;cursor:pointer}
+            @media(max-width:420px){.qr-expanded img{width:260px;height:260px}}
+            .qr-panel{cursor:pointer}
+          </style>
+
+          <script>
+            (function(){
+              var panel=document.querySelector('.qr-panel');
+              var overlay=document.getElementById('qr-overlay');
+              var closeBtn=document.getElementById('qr-close');
+              var qrLarge=document.getElementById('qr-large');
+              if(!panel||!overlay) return;
+              function open(){ overlay.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden'; }
+              function close(){ overlay.setAttribute('aria-hidden','true'); document.body.style.overflow=''; }
+              panel.addEventListener('click',open);
+              panel.addEventListener('keydown',function(e){ if(e.key==='Enter' || e.key===' ') { e.preventDefault(); open(); }});
+              closeBtn.addEventListener('click',close);
+              overlay.addEventListener('click',function(e){ if(e.target===overlay) close(); });
+              document.addEventListener('keydown',function(e){ if(e.key==='Escape') close(); });
+            })();
+          </script>
         </div>
       </section>
 
