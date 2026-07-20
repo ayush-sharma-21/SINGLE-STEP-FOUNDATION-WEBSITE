@@ -228,15 +228,14 @@
             <span class="eyebrow">Donate confidently</span>
             <h2>Your support becomes meals, books, warmth, hygiene, and hope.</h2>
             <p>Choose an amount, select a payment method, and leave a message for the people you are helping.</p>
-            <div class="payment-list">
+            <!-- <div class="payment-list">
               <span>UPI</span><span>QR Code</span><span>Bank Transfer</span><span>Debit Card</span><span>Credit Card</span><span>Net Banking</span><span>International Donations</span>
-            </div>
+            </div> -->
             <div class="qr-panel" aria-label="UPI QR code placeholder" role="button" tabindex="0">
-              <img class="qr-code" src="https://singlestep-foundation.org/assets/images/qr-code.png" 
-                  alt="UPI QR Code" />
+              <img class="qr-code" src="https://singlestep-foundation.org/assets/icons/logo.png" alt="Single Step Foundation logo" width="100" height="100" style="width:70px;height:70px;object-fit:cover;border-radius:50%;" />
               <div>
-                <strong>Scan to donate by UPI</strong>
-                <span>Replace this placeholder with the official NGO QR code before launch.</span>
+                <strong>SINGLE STEP FOUNDATION</strong>
+                <span>To bring smile on the faces of the children</span>
               </div>
             </div>
             <div class="assurance-list">
@@ -255,11 +254,11 @@
               <button type="button">₹1000</button>
               <button type="button">₹2500</button>
             </div>
-            <label>Custom amount<input type="number" min="1" placeholder="₹ Enter amount" /></label>
+            <label>Custom amount<input type="number" min="1" placeholder="₹ Enter amount (Donate minimum ₹100)" /></label>
             <label>Name<input type="text" placeholder="Your full name" /></label>
             <label>Email<input type="email" placeholder="you@example.com" /></label>
             <label>Phone<input type="tel" placeholder="+91 00000 00000" /></label>
-            <label>Payment Method<select><option>UPI</option><option>Bank Transfer</option><option>Debit Card</option><option>Credit Card</option><option>Net Banking</option></select></label>
+            <label>Payment purpose<select><option>Birthday celebration</option><option>Food distribution</option><option>Stationary Distribution</option><option>Education</option></select></label>
             <label>Message<textarea placeholder="Add a note of support"></textarea></label>
             <button class="btn btn-primary btn-wide" type="submit">Donate Securely</button>
           </form>
@@ -268,10 +267,10 @@
           <div id="qr-overlay" aria-hidden="true">
             <div class="qr-expanded" role="dialog" aria-modal="true" aria-label="Expanded QR code">
               <button id="qr-close" aria-label="Close QR">×</button>
-              <img id="qr-large" src="https://singlestep-foundation.org/assets/images/qr-code.png" alt="UPI QR Code large" />
+              <img id="qr-large" src="https://singlestep-foundation.org/assets/icons/logo.png" alt="LOGO large" />
               <div class="qr-caption">
-                <strong>Scan to donate by UPI</strong>
-                <span>Close to return.</span>
+                <strong>Fill the form and Scan to donate by UPI💵</strong>
+                <span>😁</span>
               </div>
             </div>
           </div>
@@ -355,6 +354,68 @@
           </div>
         </div>
       </section>
+
+      <!-- ===== QR CODE DONATION MODAL ===== -->
+      <div id="qr-modal" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Donation QR Code">
+        <div class="qr-modal-backdrop" onclick="closeQrModal()"></div>
+
+        <div class="qr-modal-card">
+
+          <!-- ── Header strip ── -->
+          <div class="qr-modal-top">
+            <button class="qr-modal-close" onclick="closeQrModal()" aria-label="Close">×</button>
+            <span class="qr-modal-org">Single Step Foundation</span>
+            <p class="qr-modal-tagline">Scan &amp; pay via UPI</p>
+            <div class="qr-modal-amount">
+              <span>You're donating</span>
+              <strong id="qr-amount-display">₹500</strong>
+            </div>
+          </div>
+
+          <!-- ── QR Code ── -->
+          <div class="qr-modal-body">
+            <div class="qr-modal-code-wrap">
+              <div id="qr-code-container"></div>
+            </div>
+
+            <!-- UPI chip -->
+            <button class="qr-upi-chip" id="qr-upi-chip-btn" title="Click to copy UPI ID" onclick="
+              const id = document.getElementById('qr-upi-id').textContent;
+              navigator.clipboard?.writeText(id).then(() => {
+                this.classList.add('copied');
+                setTimeout(() => this.classList.remove('copied'), 1800);
+              });
+            ">
+              <span class="qr-upi-icon">⚡</span>
+              <span id="qr-upi-id">singlestep@upi</span>
+              <span class="qr-copy-hint">tap to copy</span>
+            </button>
+
+            <!-- Bank details toggle -->
+            <details class="qr-bank-details">
+              <summary>Bank transfer details</summary>
+              <div class="qr-bank-grid">
+                <span>Account</span><span id="qr-account-name">Single Step Foundation</span>
+                <span>Acc. No.</span><span id="qr-account-no" class="qr-selectable">0000 0000 0000 0000</span>
+                <span>IFSC</span><span id="qr-ifsc">SBIN0000001</span>
+                <span>Bank</span><span id="qr-bank">State Bank of India</span>
+              </div>
+            </details>
+
+            <!-- Footer row -->
+            <div class="qr-modal-footer">
+              <span id="qr-donor-name-wrap">Donating as <strong id="qr-donor-name"></strong></span>
+              <div class="qr-trust">
+                <span title="Secure">🔒</span>
+                <span title="Receipt issued">🧾</span>
+                <span title="100% transparent">✅</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      <!-- ===== END QR MODAL ===== -->
     </main>
 
     <footer class="footer">
