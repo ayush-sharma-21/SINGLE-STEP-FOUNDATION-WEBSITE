@@ -4,6 +4,67 @@ const SHEET_CONFIG = {
   csvUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTseVEgZuYRd1bJhobpyT4qNKnPmYEJmGNedJcyG0DUcAadadi4OxN6sVayItM3PQ52eTFZlfA2blah/pub?gid=2037789487&single=true&output=csv",
 };
 
+// ============================================================
+// DONATION ACCOUNT DATA — Replace all values before going live
+// ============================================================
+const ACCOUNT_DATA = {
+  upiId:       "9953908097.eazypay@icici",          // ← Replace with actual UPI ID
+  payeeName:   "M S Single Step",  // ← Replace with registered payee name
+  accountName: "Single Step",  // ← Replace with bank account holder name
+  accountNo:   "414605001761",     // ← Replace with actual account number
+  ifsc:        "ICIC0004146",             // ← Replace with actual IFSC code
+  bank:        "ICICI Bank",     // ← Replace with actual bank name
+};
+
+// ============================================================
+// GOOGLE APPS SCRIPT — Donation records
+// Steps to set up:
+//   1. Go to https://script.google.com and create a new project.
+//   2. Paste the doPost function below (see comment block).
+//   3. Click Deploy → New deployment → Web app.
+//      Execute as: Me | Who has access: Anyone → Deploy.
+//   4. Copy the /exec URL and paste it as webAppUrl below.
+// ============================================================
+const SCRIPT_CONFIG = {
+  webAppUrl: "https://script.google.com/macros/s/AKfycbw-wWwZ2IpAmjP4vtIvYXJo0KRbKWQQnTkpU0NrLvkZdKAfxaut_VY6pKkDxO0ep0Ol/exec", // ← Paste your Apps Script /exec URL here
+};
+
+/*
+──────────────────────────────────────────────────────────────
+  PASTE THIS INTO YOUR GOOGLE APPS SCRIPT EDITOR
+──────────────────────────────────────────────────────────────
+function doPost(e) {
+  try {
+    var data = JSON.parse(e.postData.contents);
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+
+    // Write header row if the sheet is empty
+    if (sheet.getLastRow() === 0) {
+      sheet.appendRow(["Timestamp", "Name", "Email", "Phone", "Amount", "Payment Method", "Message"]);
+    }
+
+    sheet.appendRow([
+      data.timestamp || new Date().toLocaleString("en-IN"),
+      data.name      || "",
+      data.email     || "",
+      data.phone     || "",
+      data.amount    || "",
+      data.method    || "",
+      data.message   || "",
+    ]);
+
+    return ContentService
+      .createTextOutput(JSON.stringify({ status: "ok" }))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    return ContentService
+      .createTextOutput(JSON.stringify({ status: "error", message: err.message }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+──────────────────────────────────────────────────────────────
+*/
+
 const fallbackRows = [];
 
 
@@ -556,10 +617,168 @@ const setupLightbox = () => {
   });
 };
 
+// ============================================================
+// SAVE DONATION RECORD TO GOOGLE SHEET
+// ============================================================
+
+const saveDonationToSheet = (payload) => {
+  if (!SCRIPT_CONFIG.webAppUrl) return; // skip if not configured
+  try {
+    // fire-and-forget — no-cors avoids preflight, Apps Script still receives the body
+    fetch(SCRIPT_CONFIG.webAppUrl, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "text/plain" },
+      body: JSON.stringify(payload),
+    });
+  } catch (err) {
+    console.warn("Donation record could not be saved:", err);
+  }
+};
+
+// ============================================================
+// QR DONATION MODAL
+// ============================================================
+
+const openQrModal = (amount, donorName) => {
+  const modal = document.getElementById("qr-modal");
+  if (!modal) return;
+
+  // Build UPI deep-link string
+  const upiString =
+    `upi://pay?pa=${encodeURIComponent(ACCOUNT_DATA.upiId)}` +
+    `&pn=${encodeURIComponent(ACCOUNT_DATA.payeeName)}` +
+    `&am=${amount}` +
+    `&tn=${encodeURIComponent("Donation to " + ACCOUNT_DATA.payeeName)}` +
+    `&cu=INR`;
+
+  // Generate QR code via free public API (no extra library needed)
+  const container = document.getElementById("qr-code-container");
+  if (container) {
+    container.innerHTML =
+      `<img src="https://api.qrserver.com/v1/create-qr-code/?size=192x192&data=${encodeURIComponent(upiString)}" ` +
+      `alt="UPI QR Code for ₹${amount}" width="192" height="192" loading="lazy" />`;
+  }
+
+  // Helper to safely set text content
+  const setText = (id, text) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = text;
+  };
+
+  setText("qr-amount-display", `₹${Number(amount).toLocaleString("en-IN")}`);
+  setText("qr-upi-id", ACCOUNT_DATA.upiId);
+  setText("qr-account-name", ACCOUNT_DATA.accountName);
+  setText("qr-account-no", ACCOUNT_DATA.accountNo);
+  setText("qr-ifsc", ACCOUNT_DATA.ifsc);
+  setText("qr-bank", ACCOUNT_DATA.bank);
+  setText("qr-donor-name", donorName || "Anonymous");
+
+  modal.setAttribute("aria-hidden", "false");
+  document.body.style.overflow = "hidden";
+};
+
+const closeQrModal = () => {
+  const modal = document.getElementById("qr-modal");
+  if (!modal) return;
+  modal.setAttribute("aria-hidden", "true");
+  document.body.style.overflow = "";
+};
+
+const setupQrModal = () => {
+  const modal = document.getElementById("qr-modal");
+  if (!modal) return;
+  // Close when clicking the backdrop
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) closeQrModal();
+  });
+  // Close on Escape key
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && modal.getAttribute("aria-hidden") === "false") {
+      closeQrModal();
+    }
+  });
+};
+
 const setupForms = () => {
+  const donationForm = document.querySelector('form[aria-label="Donation form"]');
+
+  // ── Donation form: live validation → enable/disable submit button ──
+  if (donationForm) {
+    const submitBtn   = donationForm.querySelector('button[type="submit"]');
+    const group       = donationForm.querySelector("[data-amounts]");
+    const customInput = donationForm.querySelector('input[type="number"]');
+    const nameInput   = donationForm.querySelector('input[type="text"]');
+    const emailInput  = donationForm.querySelector('input[type="email"]');
+    const phoneInput  = donationForm.querySelector('input[type="tel"]');
+
+    const isDonationFormValid = () => {
+      const hasAmount =
+        (customInput?.value && Number(customInput.value) >= 100) ||
+        !!group?.querySelector("button.active");
+      const hasName  = nameInput?.value.trim().length > 0;
+      const hasEmail = emailInput?.value.trim().length > 0 && emailInput.validity.valid;
+      const hasPhone = phoneInput?.value.trim().length > 0;
+      return hasAmount && hasName && hasEmail && hasPhone;
+    };
+
+    const refreshBtn = () => {
+      const valid = isDonationFormValid();
+      submitBtn.disabled = !valid;
+      submitBtn.setAttribute("aria-disabled", String(!valid));
+    };
+
+    // Start disabled
+    refreshBtn();
+
+    // Re-check on every input / preset-amount click
+    donationForm.addEventListener("input", refreshBtn);
+    group?.addEventListener("click", () => setTimeout(refreshBtn, 0));
+  }
+
   document.querySelectorAll("form").forEach((form) => {
     form.addEventListener("submit", (event) => {
       event.preventDefault();
+
+      // Donation form — show dynamic QR modal
+      if (form === donationForm) {
+        const group       = form.querySelector("[data-amounts]");
+        const activeBtn   = group?.querySelector("button.active");
+        const customInput = form.querySelector('input[type="number"]');
+        const nameInput   = form.querySelector('input[type="text"]');
+        const emailInput  = form.querySelector('input[type="email"]');
+        const phoneInput  = form.querySelector('input[type="tel"]');
+        const methodInput = form.querySelector('select');
+        const msgInput    = form.querySelector('textarea');
+
+        // Resolve amount: custom input takes priority over preset button
+        let amount = 0;
+        if (customInput?.value && Number(customInput.value) > 0) {
+          amount = Number(customInput.value);
+        } else if (activeBtn) {
+          amount = Number(activeBtn.textContent.replace(/[^0-9]/g, ""));
+        }
+
+        if (!amount || amount < 1) return; // guard (button should already be disabled)
+
+        const donorName = nameInput?.value.trim() || "";
+
+        // Save record to Google Sheet (fire-and-forget)
+        saveDonationToSheet({
+          timestamp: new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" }),
+          name:    donorName,
+          email:   emailInput?.value.trim()  || "",
+          phone:   phoneInput?.value.trim()  || "",
+          amount:  `₹${amount}`,
+          method:  methodInput?.value        || "",
+          message: msgInput?.value.trim()    || "",
+        });
+
+        openQrModal(amount, donorName);
+        return;
+      }
+
+      // Default handling for all other forms
       const button = form.querySelector("button[type='submit']");
       if (!button) return;
       const original = button.textContent;
@@ -589,6 +808,7 @@ const init = async () => {
   setupDonationAmounts();
   setupLightbox();
   setupForms();
+  setupQrModal();
 };
 
 window.addEventListener("load", () => {
